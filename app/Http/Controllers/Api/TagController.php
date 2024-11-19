@@ -8,11 +8,13 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    public function index(){
-        return Tag::all();
+    public function index()
+    {
+        return Tag::with('recipes')->get();
     }
 
-    public function show(Tag $tag){
-        return $tag; 
+    public function show(Tag $tag)
+    {
+        return $tag->load('recipes');
     }
 }
