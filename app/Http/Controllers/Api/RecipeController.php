@@ -14,8 +14,14 @@ class RecipeController extends Controller
         return Recipe::with('category', 'tags', 'user')->get();
     }
 
+    public function store(Recipe $recipe){ }
+
     public function show(Recipe $recipe)
     {
         return $recipe->load('category', 'tags', 'user');
     }
+
+    public function update(Recipe $recipe){ }
+
+    public function delete(Recipe $recipe){ }
 }
