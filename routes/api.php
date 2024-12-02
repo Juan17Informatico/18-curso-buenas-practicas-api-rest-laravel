@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::get('categories',            [CategoryController::class, 'index']);
-Route::get('categories/{category}', [CategoryController::class, 'show' ]);
+Route::middleware('auth:sanctum')->group(function () {
 
-Route::apiResource('recipes', RecipeController::class);
-
-Route::get('tags',                  [TagController::class, 'index']);
-Route::get('tags/{tag}',            [TagController::class, 'show' ]);
+    Route::get('categories',            [CategoryController::class, 'index']);
+    Route::get('categories/{category}', [CategoryController::class, 'show' ]);
+    
+    Route::apiResource('recipes', RecipeController::class);
+    
+    Route::get('tags',                  [TagController::class, 'index']);
+    Route::get('tags/{tag}',            [TagController::class, 'show' ]);
+});
