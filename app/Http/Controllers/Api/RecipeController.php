@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class RecipeController extends Controller
@@ -21,8 +22,8 @@ class RecipeController extends Controller
     public function store(StoreRecipeRequest $request)
     {
 
-        $recipe = Recipe::create($request->all());
-        $recipe->tags()->attach($tags);
+        $recipe = $request->user()->recipes()->create($request->all());
+        $recipe->tags()->attach(json_decode($request->tags));
 
 
         return response()->json(new RecipeResource($recipe), Response::HTTP_CREATED);
@@ -36,6 +37,7 @@ class RecipeController extends Controller
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe)
     {
+        Gate::authorize('update', $recipe);
         $recipe->update($request->all());
 
         if ($tags = json_decode($request->tags)) {
@@ -47,6 +49,7 @@ class RecipeController extends Controller
 
     public function destroy(Recipe $recipe)
     {
+        Gate::authorize('delete', $recipe);
         $recipe->delete();
 
         return response()->json(null, Response::HTTP_NO_CONTENT); // 204
