@@ -8,13 +8,14 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class RecipeTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     public function test_index(): void
     {
@@ -42,21 +43,23 @@ class RecipeTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
         
-        Category::factory()->create();
-        Tag::factory()->create();
+        $category = Category::factory()->create();
+        $tag = Tag::factory()->create();
 
-        $recipe = Recipe::factory()->create();
+        $data = [
+            'category_id' => $category->id,
+            'title' => $this->faker->sentence,
+            'description' => $this->faker->paragraph,
+            'ingredients' => $this->faker->text,
+            'instructions' => $this->faker->text,
+            'tags' => $tag->id,
+            'image' => UploadedFile::fake()->image('recipe.png'),
+            // 'user_id' => \App\Models\User::all()->random()->id,
+        ];
 
-        $response = $this->getJson('/api/recipes/' . $recipe->id);
+        $response = $this->postJson('/api/recipes', $data);
         $response
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'type',
-                    'attributes' => ['title', 'description'],
-                ]
-            ]);
+            ->assertStatus(Response::HTTP_CREATED);
     }
 
     public function test_show(): void
